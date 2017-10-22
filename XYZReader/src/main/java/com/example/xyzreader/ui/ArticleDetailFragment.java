@@ -19,6 +19,7 @@ import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -207,20 +208,28 @@ public class ArticleDetailFragment extends Fragment implements
             ImageLoaderHelper.getInstance(getActivity()).getImageLoader()
                     .get(mCursor.getString(ArticleLoader.Query.PHOTO_URL), new ImageLoader.ImageListener() {
                         @Override
-                        public void onResponse(ImageLoader.ImageContainer imageContainer, boolean b) {
+                        public void onResponse(final ImageLoader.ImageContainer imageContainer, boolean b) {
+                            mPhotoView.setImageBitmap(imageContainer.getBitmap());
                             Bitmap bitmap = imageContainer.getBitmap();
                             if (bitmap != null) {
-                                Palette p = Palette.generate(bitmap, 12);
-                                mMutedColor = p.getDarkMutedColor(0xFF333333);
-                                mPhotoView.setImageBitmap(imageContainer.getBitmap());
-                                mRootView.findViewById(R.id.meta_bar)
-                                        .setBackgroundColor(mMutedColor);
+                                Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                                    @Override
+                                    public void onGenerated(Palette palette) {
+                                        mMutedColor = palette.getDarkMutedColor(0xFF333333);
+                                        mRootView.findViewById(R.id.meta_bar)
+                                                .setBackgroundColor(mMutedColor);
+                                        collapsingToolbarLayout.setContentScrimColor(mMutedColor);
+                                    }
+                                });
+                                try{
+                                    toolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
+                                    ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
+                                    ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+                                    ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+                                }catch (NullPointerException e)
+                                {
 
-                                toolbar.setTitle(mCursor.getString(ArticleLoader.Query.TITLE));
-                                collapsingToolbarLayout.setContentScrimColor(mMutedColor);
-                                ((AppCompatActivity)getActivity()).setSupportActionBar(toolbar);
-                                ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-                                ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayShowHomeEnabled(true);
+                                }
 
                             }
                         }
@@ -268,8 +277,12 @@ public class ArticleDetailFragment extends Fragment implements
         bindViews();
     }
 
-
-
-
-
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.home)
+        {
+            getActivity().onBackPressed();
+        }
+        return true;
+    }
 }
