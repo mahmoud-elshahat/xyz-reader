@@ -1,10 +1,9 @@
 # xyz Reader
 
-Udacity nanodegree first project .
+Udacity android developer nanodegree project dealing with Material design .
 
 ## Demo - Youtube
 
 [![Demo](http://img.youtube.com/vi/OV_BnxyuEQw&t/0.jpg)](http://www.youtube.com/watch?v=OV_BnxyuEQw&t)
-
 
 
